@@ -1,5 +1,5 @@
 {
-  "name": "video-highlight",
+  "name": "video-highlight-editor",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,16 +11,20 @@
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.16"
+    "next": "14.0.0",
+    "react-dropzone": "^14.2.3",
+    "lucide-react": "^0.263.1",
+    "@radix-ui/react-slider": "^1.1.2"
   },
   "devDependencies": {
     "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.3.0",
     "eslint": "^8",
-    "eslint-config-next": "14.2.16"
+    "eslint-config-next": "14.0.0"
   }
 }
