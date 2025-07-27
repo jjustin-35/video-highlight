@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-
-import { useRef } from "react"
+import React, { useRef } from "react"
 import type { SelectedSegment } from "@/types/video"
+import { formatTime } from "@/helpers/formatTime"
 
 interface TimelineProps {
   duration: number
@@ -26,11 +25,6 @@ export function Timeline({ duration, currentTime, selectedSegments, onSeek }: Ti
     onSeek(time)
   }
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
 
   return (
     <div className="space-y-2">

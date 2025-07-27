@@ -3,10 +3,11 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, Video } from "lucide-react";
-import { useVideoEditor } from "@/contexts/useVideoEditor";
+import { useVideoEditor } from "@/contexts/videoContext";
+import { combineClass } from "@/helpers/combineClass";
 import Button from "@/components/Button";
 
-export function VideoUpload() {
+const VideoUpload = () => {
   const { handleVideoUpload } = useVideoEditor();
 
   const onDrop = useCallback(
@@ -41,11 +42,12 @@ export function VideoUpload() {
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+        className={combineClass(
+          "border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors",
           isDragActive
             ? "border-blue-500 bg-blue-50"
             : "border-gray-300 hover:border-gray-400"
-        }`}
+        )}
       >
         <input {...getInputProps()} />
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -91,4 +93,6 @@ export function VideoUpload() {
       </div>
     </div>
   );
-}
+};
+
+export default VideoUpload;

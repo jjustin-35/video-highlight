@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import { mockAIProcess } from "@/lib/mockAi";
 import type { VideoData, SelectedSegment } from "@/types/video";
 
-interface VideoEditorContextType {
+interface VideoContextType {
   // State
   videoFile: File | null;
   videoUrl: string;
@@ -23,7 +23,7 @@ interface VideoEditorContextType {
   setIsPlaying: (playing: boolean) => void;
 }
 
-const initialState: VideoEditorContextType = {
+const initialState: VideoContextType = {
   videoFile: null,
   videoUrl: "",
   videoData: null,
@@ -39,17 +39,17 @@ const initialState: VideoEditorContextType = {
   setIsPlaying: () => {},
 };
 
-const VideoEditorContext = createContext<VideoEditorContextType>(initialState);
+const VideoContext = createContext<VideoContextType>(initialState);
 
 export const useVideoEditor = () => {
-  const context = useContext(VideoEditorContext);
+  const context = useContext(VideoContext);
   if (context === undefined) {
     throw new Error("useVideoEditor must be used within a VideoEditorProvider");
   }
   return context;
 };
 
-const VideoEditorProvider = ({ children }: { children: ReactNode }) => {
+const VideoProvider = ({ children }: { children: ReactNode }) => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoData, setVideoData] = useState<VideoData | null>(null);
@@ -137,7 +137,7 @@ const VideoEditorProvider = ({ children }: { children: ReactNode }) => {
     return segments;
   };
 
-  const value: VideoEditorContextType = {
+  const value: VideoContextType = {
     // State
     videoFile,
     videoUrl,
@@ -157,10 +157,10 @@ const VideoEditorProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <VideoEditorContext.Provider value={value}>
+    <VideoContext.Provider value={value}>
       {children}
-    </VideoEditorContext.Provider>
+    </VideoContext.Provider>
   );
 };
 
-export default VideoEditorProvider;
+export default VideoProvider;

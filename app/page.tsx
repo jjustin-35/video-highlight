@@ -1,23 +1,13 @@
 "use client";
 
-import { VideoUpload } from "@/components/VideoUpload";
+import VideoUpload from "@/components/VideoUpload";
 import EditingArea from "@/components/EditingArea";
-import { PreviewArea } from "@/components/preview-area";
-import { useVideoEditor } from "@/contexts/useVideoEditor";
+import PreviewArea from "@/components/PreviewArea";
+import { useVideoEditor } from "@/contexts/videoContext";
 import Loading from "./loading";
 
 const VideoHighlightEditor = () => {
-  const {
-    videoFile,
-    isProcessing,
-    selectedSentences,
-    currentTime,
-    isPlaying,
-    videoUrl,
-    getSelectedSegments,
-    setCurrentTime,
-    setIsPlaying,
-  } = useVideoEditor();
+  const { videoFile, isProcessing, selectedSentences } = useVideoEditor();
 
   if (!videoFile) {
     return (
@@ -52,14 +42,7 @@ const VideoHighlightEditor = () => {
         </div>
 
         <div className="w-1/2 bg-gray-900">
-          <PreviewArea
-            videoUrl={videoUrl}
-            selectedSegments={getSelectedSegments()}
-            currentTime={currentTime}
-            isPlaying={isPlaying}
-            onTimeUpdate={setCurrentTime}
-            onPlayStateChange={setIsPlaying}
-          />
+          <PreviewArea />
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Sparkles } from "lucide-react";
-import { useVideoEditor } from "@/contexts/useVideoEditor";
+import { useVideo } from "@/contexts/videoContext";
 import Badge from "@/components/Badge";
 import Sentence from "./sentence";
 
@@ -14,7 +14,7 @@ const EditingArea = () => {
     isPlaying,
     handleSentenceToggle,
     handleTimestampClick,
-  } = useVideoEditor();
+  } = useVideo();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentSentenceRef = useRef<HTMLDivElement>(null);
 
