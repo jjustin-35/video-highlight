@@ -2,7 +2,7 @@ import type { VideoData, TranscriptSection } from "@/types/video"
 
 export async function mockAIProcess(): Promise<VideoData> {
   // Simulate AI processing delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
 
   // Mock transcript data based on video content
   const mockSections: TranscriptSection[] = [

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { mockAIProcess } from "@/lib/mockAi";
 import type { VideoData, SelectedSegment } from "@/types/video";
+import { mockAIProcess } from "@/lib/mockAi";
 
 interface VideoContextType {
   // State
@@ -67,8 +67,6 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
 
     setIsProcessing(true);
     try {
-      // Simulate AI processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       const processedData = await mockAIProcess();
       setVideoData(processedData);
 

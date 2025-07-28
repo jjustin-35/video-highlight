@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { SelectedSegment, TranscriptSentence } from "@/types/video";
 import { useVideoEditor } from "@/contexts/videoContext";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Timeline } from "@/components/Timeline";
@@ -18,31 +19,32 @@ const PreviewArea = () => {
   } = useVideoEditor();
   const selectedSegments = getSelectedSegments();
 
-  const getCurrentSegmentData = () => {
-    for (let i = 0; i < selectedSegments.length; i++) {
-      const segment = selectedSegments[i];
-      if (currentTime >= segment.startTime && currentTime <= segment.endTime) {
-        const currentSentence = segment.sentences.find(
-          (s) => currentTime >= s.startTime && currentTime <= s.endTime
-        );
-        return {
-          segment,
-          index: i,
-          currentSentence,
-        };
-      }
-    }
-    return null;
-  };
+  let currentData: {
+    segment: SelectedSegment;
+    index: number;
+    currentSentence: TranscriptSentence | null;
+  } | null = null;
 
-  const currentData = getCurrentSegmentData();
+  for (let i = 0; i < selectedSegments.length; i++) {
+    const segment = selectedSegments[i];
+    if (currentTime >= segment.startTime && currentTime <= segment.endTime) {
+      const currentSentence = segment.sentences.find(
+        (s) => currentTime >= s.startTime && currentTime <= s.endTime
+      ) || null;
+      currentData = {
+        segment,
+        index: i,
+        currentSentence,
+      };
+    }
+  }
 
   return (
     <div className="h-full flex flex-col bg-black">
       <div className="p-4 bg-gray-900 border-b border-gray-700">
         <h2 className="text-lg font-semibold text-white mb-2">Preview</h2>
         <div className="text-sm text-gray-400">
-          {selectedSegments.length} segments • 
+          {selectedSegments.length} segments •
           {Math.round(
             selectedSegments.reduce(
               (total, seg) => total + (seg.endTime - seg.startTime),
