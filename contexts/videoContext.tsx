@@ -16,6 +16,7 @@ interface VideoContextType {
 
   // Actions
   handleVideoUpload: (file: File) => Promise<void>;
+  handleDemoVideo: () => Promise<void>;
   handleSentenceToggle: (sentenceId: string) => void;
   handleTimestampClick: (timestamp: number) => void;
   getSelectedSegments: () => SelectedSegment[];
@@ -32,6 +33,7 @@ const initialState: VideoContextType = {
   currentTime: 0,
   isPlaying: false,
   handleVideoUpload: async () => {},
+  handleDemoVideo: async () => {},
   handleSentenceToggle: () => {},
   handleTimestampClick: () => {},
   getSelectedSegments: () => [],
@@ -60,11 +62,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handleVideoUpload = async (file: File) => {
-    setVideoFile(file);
-    const url = URL.createObjectURL(file);
-    setVideoUrl(url);
-
+  const handleAiData = async () => {
     setIsProcessing(true);
     try {
       const processedData = await mockAIProcess();
@@ -84,6 +82,27 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleDemoVideo = async () => {
+    const file = {
+      name: "demo.mp4",
+      type: "video/mp4",
+      size: 1000000,
+      lastModified: Date.now(),
+    } as File;
+    setVideoFile(file);
+    const url = "/demo.mp4";
+    setVideoUrl(url);
+    await handleAiData();
+  };
+
+  const handleVideoUpload = async (file: File) => {
+    setVideoFile(file);
+    const url = URL.createObjectURL(file);
+    setVideoUrl(url);
+
+    await handleAiData();
   };
 
   const handleSentenceToggle = (sentenceId: string) => {
@@ -147,6 +166,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
 
     // Actions
     handleVideoUpload,
+    handleDemoVideo,
     handleSentenceToggle,
     handleTimestampClick,
     getSelectedSegments,
@@ -155,9 +175,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <VideoContext.Provider value={value}>
-      {children}
-    </VideoContext.Provider>
+    <VideoContext.Provider value={value}>{children}</VideoContext.Provider>
   );
 };
 

@@ -8,7 +8,7 @@ import { combineClass } from "@/helpers/combineClass";
 import Button from "@/components/Button";
 
 const VideoUpload = () => {
-  const { handleVideoUpload } = useVideoEditor();
+  const { handleVideoUpload, handleDemoVideo } = useVideoEditor();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -20,12 +20,17 @@ const VideoUpload = () => {
     [handleVideoUpload]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const onTryDemo = async () => {
+    await handleDemoVideo();
+  };
+
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: {
       "video/*": [".mp4", ".mov", ".avi", ".webm"],
     },
     maxFiles: 1,
+    noClick: true,
   });
 
   return (
@@ -43,10 +48,8 @@ const VideoUpload = () => {
       <div
         {...getRootProps()}
         className={combineClass(
-          "border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors",
-          isDragActive
-            ? "border-blue-500 bg-blue-50"
-            : "border-gray-300 hover:border-gray-400"
+          "border-2 border-dashed rounded-lg p-12 text-center transition-colors",
+          isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-400"
         )}
       >
         <input {...getInputProps()} />
@@ -54,15 +57,31 @@ const VideoUpload = () => {
         {isDragActive ? (
           <p className="text-lg text-blue-600">Drop your video here...</p>
         ) : (
-          <div>
-            <p className="text-lg text-gray-600 mb-2">
-              Drag and drop your video here, or click to select
-            </p>
-            <p className="text-sm text-gray-500 mb-4">
-              Supports MP4, MOV, AVI, WebM files
-            </p>
-            <Button>Choose Video File</Button>
-          </div>
+          <>
+            <div>
+              <p className="text-lg text-gray-600 mb-2">
+                Drag and drop your video here, or click to select
+              </p>
+              <p className="text-sm text-gray-500 mb-4">
+                Supports MP4, MOV, AVI, WebM files
+              </p>
+              <Button variant="outline" onClick={() => open()}>
+                Choose Video File
+              </Button>
+            </div>
+            <div className="mt-6 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex-1 h-px bg-gray-300"></div>
+                <span className="px-4 text-gray-500 text-sm font-medium">
+                  or
+                </span>
+                <div className="flex-1 h-px bg-gray-300"></div>
+              </div>
+              <Button variant="outline" onClick={onTryDemo}>
+                Try Demo
+              </Button>
+            </div>
+          </>
         )}
       </div>
 
