@@ -15,7 +15,7 @@ const Slider = ({ className, sliderRef, ...props }: SliderProps) => (
     ref={sliderRef}
     className={combineClass(
       "relative flex w-full touch-none select-none items-center",
-      className
+      className ?? ""
     )}
     {...props}
   >

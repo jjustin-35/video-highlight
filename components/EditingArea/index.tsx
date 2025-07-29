@@ -15,12 +15,11 @@ const EditingArea = () => {
     handleSentenceToggle,
     handleTimestampClick,
   } = useVideoEditor();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentSentenceRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to current sentence during playback
   useEffect(() => {
-    if (isPlaying && currentSentenceRef.current && scrollContainerRef.current) {
+    if (isPlaying && currentSentenceRef.current) {
       currentSentenceRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -45,10 +44,7 @@ const EditingArea = () => {
         </div>
       </div>
 
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-6"
-      >
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {videoData.sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="space-y-3">
             <h3 className="text-lg font-semibold text-gray-900 sticky top-0 bg-white py-2 border-b">
