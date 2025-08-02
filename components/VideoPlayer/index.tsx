@@ -3,40 +3,45 @@
 import { useState } from "react";
 
 import { useRef, useEffect } from "react";
-import { Play, Pause, Volume2, Maximize } from "lucide-react";
-import Button from "@/components/Button";
-import Slider from "@/components/Slider";
+import { TranscriptSentence } from "@/types/video";
+import { useVideoEditor } from "@/contexts/videoContext";
+import Timeline from "./timeline";
+import TranscriptOverlay from "./transcriptOverlay";
+import ControlBar from "./controlBar";
 
-interface VideoPlayerProps {
-  src: string;
-  currentTime: number;
-  isPlaying: boolean;
-  onTimeUpdate: (time: number) => void;
-  onPlayStateChange: (playing: boolean) => void;
-  onDurationChange: (duration: number) => void;
-}
-
-export function VideoPlayer({
-  src,
-  currentTime,
-  isPlaying,
-  onTimeUpdate,
-  onPlayStateChange,
-  onDurationChange,
-}: VideoPlayerProps) {
+const VideoPlayer = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [volume, setVolume] = useState(1);
+  const [duration, setDuration] = useState(0);
+  const {
+    videoUrl,
+    videoData,
+    currentTime,
+    isPlaying,
+    selectedSegments,
+    setCurrentTime,
+    setIsPlaying,
+  } = useVideoEditor();
+
+  const currentSentence = videoData?.sections.reduce<TranscriptSentence | null>(
+    (acc, section) => {
+      const sentence = section.sentences.find(
+        (s) => currentTime >= s.startTime && currentTime <= s.endTime
+      );
+      return sentence ? sentence : acc;
+    },
+    null
+  );
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleTimeUpdate = () => {
-      onTimeUpdate(video.currentTime);
+      setCurrentTime(video.currentTime);
     };
 
     const handleLoadedMetadata = () => {
-      onDurationChange(video.duration);
+      setDuration(video.duration);
     };
 
     video.addEventListener("timeupdate", handleTimeUpdate);
@@ -46,7 +51,7 @@ export function VideoPlayer({
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [onTimeUpdate, onDurationChange]);
+  }, [setCurrentTime, setDuration]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -61,20 +66,19 @@ export function VideoPlayer({
     const video = videoRef.current;
     if (!video) return;
 
-    if (isPlaying) {
-      video.play();
-    } else {
+    if (!isPlaying) {
       video.pause();
+      return;
     }
+
+    video.play();
   }, [isPlaying]);
 
   const handlePlayPause = () => {
-    onPlayStateChange(!isPlaying);
+    setIsPlaying(!isPlaying);
   };
 
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
+  const handleVolumeChange = ([newVolume]: number[]) => {
     if (videoRef.current) {
       videoRef.current.volume = newVolume;
     }
@@ -90,50 +94,37 @@ export function VideoPlayer({
     <div className="relative w-full h-full bg-black group">
       <video
         ref={videoRef}
-        src={src}
+        src={videoUrl}
         className="w-full h-full object-contain"
         playsInline
       />
 
-      {/* Video Controls Overlay */}
+      {currentSentence && (
+        <TranscriptOverlay
+          text={currentSentence.text}
+          isHighlight={currentSentence.isHighlight}
+        />
+      )}
+
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePlayPause}
-            className="text-white hover:bg-white/20"
-          >
-            {isPlaying ? (
-              <Pause className="w-5 h-5" />
-            ) : (
-              <Play className="w-5 h-5" />
-            )}
-          </Button>
+        <Timeline
+          duration={duration}
+          currentTime={currentTime}
+          selectedSegments={selectedSegments}
+          onTimeChange={setCurrentTime}
+        />
 
-          <div className="flex items-center gap-2 text-white">
-            <Volume2 className="w-4 h-4" />
-            <Slider
-              value={[volume]}
-              onValueChange={handleVolumeChange}
-              max={1}
-              step={0.1}
-              className="w-20"
-            />
-          </div>
-
-          <div className="flex-1" />
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleFullscreen}
-            className="text-white hover:bg-white/20"
-          >
-            <Maximize className="w-4 h-4" />
-          </Button>
-        </div>
+        <ControlBar
+          currentTime={currentTime}
+          duration={duration}
+          isPlaying={isPlaying}
+          handlePlayPause={handlePlayPause}
+          handleVolumeChange={handleVolumeChange}
+          handleFullscreen={handleFullscreen}
+        />
       </div>
     </div>
   );
-}
+};
+
+export default VideoPlayer;

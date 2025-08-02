@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import type { VideoData, SelectedSegment } from "@/types/video";
 import { mockAIProcess } from "@/lib/mockAi";
 
@@ -11,6 +17,7 @@ interface VideoContextType {
   videoData: VideoData | null;
   isProcessing: boolean;
   selectedSentences: Set<string>;
+  selectedSegments: SelectedSegment[];
   currentTime: number;
   isPlaying: boolean;
 
@@ -19,7 +26,6 @@ interface VideoContextType {
   handleDemoVideo: () => Promise<void>;
   handleSentenceToggle: (sentenceId: string) => void;
   handleTimestampClick: (timestamp: number) => void;
-  getSelectedSegments: () => SelectedSegment[];
   setCurrentTime: (time: number) => void;
   setIsPlaying: (playing: boolean) => void;
 }
@@ -30,13 +36,13 @@ const initialState: VideoContextType = {
   videoData: null,
   isProcessing: false,
   selectedSentences: new Set(),
+  selectedSegments: [],
   currentTime: 0,
   isPlaying: false,
   handleVideoUpload: async () => {},
   handleDemoVideo: async () => {},
   handleSentenceToggle: () => {},
   handleTimestampClick: () => {},
-  getSelectedSegments: () => [],
   setCurrentTime: () => {},
   setIsPlaying: () => {},
 };
@@ -59,8 +65,46 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
   const [selectedSentences, setSelectedSentences] = useState<Set<string>>(
     new Set()
   );
+  const [selectedSegments, setSelectedSegments] = useState<SelectedSegment[]>(
+    []
+  );
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!videoData) return;
+
+    const segments: SelectedSegment[] = [];
+    let currentSegment: SelectedSegment | null = null;
+
+    videoData.sections.forEach((section) => {
+      section.sentences.forEach((sentence) => {
+        if (selectedSentences.has(sentence.id)) {
+          if (
+            !currentSegment ||
+            sentence.startTime > currentSegment.endTime + 1
+          ) {
+            // Start new segment
+            if (currentSegment) segments.push(currentSegment);
+            currentSegment = {
+              startTime: sentence.startTime,
+              endTime: sentence.endTime,
+              text: sentence.text,
+              sentences: [sentence],
+            };
+          } else {
+            // Extend current segment
+            currentSegment.endTime = sentence.endTime;
+            currentSegment.text += " " + sentence.text;
+            currentSegment.sentences.push(sentence);
+          }
+        }
+      });
+    });
+
+    if (currentSegment) segments.push(currentSegment);
+    setSelectedSegments(segments);
+  }, [selectedSentences, videoData, currentTime]);
 
   const handleAiData = async () => {
     setIsProcessing(true);
@@ -119,41 +163,6 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTime(timestamp);
   };
 
-  const getSelectedSegments = (): SelectedSegment[] => {
-    if (!videoData) return [];
-
-    const segments: SelectedSegment[] = [];
-    let currentSegment: SelectedSegment | null = null;
-
-    videoData.sections.forEach((section) => {
-      section.sentences.forEach((sentence) => {
-        if (selectedSentences.has(sentence.id)) {
-          if (
-            !currentSegment ||
-            sentence.startTime > currentSegment.endTime + 1
-          ) {
-            // Start new segment
-            if (currentSegment) segments.push(currentSegment);
-            currentSegment = {
-              startTime: sentence.startTime,
-              endTime: sentence.endTime,
-              text: sentence.text,
-              sentences: [sentence],
-            };
-          } else {
-            // Extend current segment
-            currentSegment.endTime = sentence.endTime;
-            currentSegment.text += " " + sentence.text;
-            currentSegment.sentences.push(sentence);
-          }
-        }
-      });
-    });
-
-    if (currentSegment) segments.push(currentSegment);
-    return segments;
-  };
-
   const value: VideoContextType = {
     // State
     videoFile,
@@ -161,6 +170,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     videoData,
     isProcessing,
     selectedSentences,
+    selectedSegments,
     currentTime,
     isPlaying,
 
@@ -169,7 +179,6 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     handleDemoVideo,
     handleSentenceToggle,
     handleTimestampClick,
-    getSelectedSegments,
     setCurrentTime,
     setIsPlaying,
   };

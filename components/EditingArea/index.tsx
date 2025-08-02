@@ -11,7 +11,6 @@ const EditingArea = () => {
     videoData,
     selectedSentences,
     currentTime,
-    isPlaying,
     handleSentenceToggle,
     handleTimestampClick,
   } = useVideoEditor();
@@ -19,13 +18,13 @@ const EditingArea = () => {
 
   // Auto-scroll to current sentence during playback
   useEffect(() => {
-    if (isPlaying && currentSentenceRef.current) {
+    if (currentSentenceRef.current) {
       currentSentenceRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
     }
-  }, [currentTime, isPlaying]);
+  }, [currentTime]);
 
   if (!videoData) return null;
 

@@ -36,13 +36,12 @@ const VideoHighlightEditor = () => {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
-        <div className="w-1/2 border-r bg-white">
-          <EditingArea />
-        </div>
-
-        <div className="w-1/2 bg-gray-900">
+      <div className="flex flex-col-reverse sm:flex-row sm:h-[calc(100vh-80px)]">
+        <div className="sticky top-[-111px] left-0 sm:static w-full sm:w-2/3 bg-gray-900">
           <PreviewArea />
+        </div>
+        <div className="w-full sm:w-1/3 border-r bg-white">
+          <EditingArea />
         </div>
       </div>
     </div>
