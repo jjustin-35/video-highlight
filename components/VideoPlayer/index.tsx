@@ -84,12 +84,6 @@ const VideoPlayer = () => {
     }
   };
 
-  const handleFullscreen = () => {
-    if (videoRef.current) {
-      videoRef.current.requestFullscreen();
-    }
-  };
-
   return (
     <div className="relative w-full h-full bg-black group">
       <video
@@ -120,7 +114,6 @@ const VideoPlayer = () => {
           isPlaying={isPlaying}
           handlePlayPause={handlePlayPause}
           handleVolumeChange={handleVolumeChange}
-          handleFullscreen={handleFullscreen}
         />
       </div>
     </div>

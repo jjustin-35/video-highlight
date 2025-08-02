@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { formatTime } from "@/helpers/formatTime";
 import Button from "@/components/Button";
 import Slider from "@/components/Slider";
-import { combineClass } from "@/helpers/combineClass";
-import { Pause, Play, Volume2, Maximize } from "lucide-react";
+import { Pause, Play, Volume2 } from "lucide-react";
 
 interface ControlBarProps {
   currentTime: number;
@@ -11,7 +9,6 @@ interface ControlBarProps {
   isPlaying: boolean;
   handlePlayPause: () => void;
   handleVolumeChange: (value: number[]) => void;
-  handleFullscreen: () => void;
 }
 
 const ControlBar = ({
@@ -20,7 +17,6 @@ const ControlBar = ({
   isPlaying,
   handlePlayPause,
   handleVolumeChange,
-  handleFullscreen,
 }: ControlBarProps) => {
   return (
     <div className="flex items-center justify-between mt-2">
@@ -55,15 +51,6 @@ const ControlBar = ({
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
       </div>
-
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleFullscreen}
-        className="text-white hover:bg-white/20"
-      >
-        <Maximize className="w-4 h-4" />
-      </Button>
     </div>
   );
 };
