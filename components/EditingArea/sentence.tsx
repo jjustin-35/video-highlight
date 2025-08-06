@@ -4,6 +4,7 @@ import { formatTime } from "@/helpers/formatTime";
 import Button from "@/components/Button";
 import Badge from "@/components/Badge";
 import { sentenceVariants } from "./styled";
+import { combineClass } from "@/helpers/combineClass";
 
 interface SentenceProps {
   sentence: TranscriptSentence;
@@ -38,24 +39,27 @@ const Sentence = ({
       className={sentenceStyles}
       onClick={() => onSentenceToggle(sentence.id)}
     >
-      <div className="flex items-start gap-3">
+      <div>
         <Button
-          variant="ghost"
+          variant="link"
           size="sm"
-          className="p-1 h-auto text-xs text-gray-500 hover:text-blue-600"
+          className={combineClass(
+            "pl-0 h-auto text-xs text-gray-500 hover:text-blue-600",
+            isCurrent ? "text-blue-600" : "text-gray-500"
+          )}
           onClick={(e) => {
             e.stopPropagation();
             onTimestampClick(sentence.startTime);
           }}
         >
-          <Clock className="w-3 h-3 mr-1" />
+          <Clock className="w-3 h-3" />
           {startTime}
         </Button>
 
         <div className="flex-1">
           <p
             className={`text-sm leading-relaxed ${
-              isCurrent ? "text-blue-900 font-medium" : "text-gray-700"
+              isCurrent ? "text-blue-600 font-medium" : "text-gray-700"
             }`}
           >
             {sentence.text}
@@ -64,8 +68,8 @@ const Sentence = ({
           <div className="flex items-center gap-2 mt-2">
             {sentence.isHighlight && (
               <Badge variant="outline" className="text-xs">
-                <Sparkles className="w-3 h-3 mr-1" />
-                <span className="text-xs md:hidden lg:block">AI Suggested</span>
+                <Sparkles className="w-3 h-3 mr-2" />
+                <span className="text-xs">AI Suggested</span>
               </Badge>
             )}
           </div>

@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Sparkles } from "lucide-react";
 import { useVideoEditor } from "@/contexts/videoContext";
-import Badge from "@/components/Badge";
 import Sentence from "./sentence";
 
 const EditingArea = () => {
@@ -15,6 +13,9 @@ const EditingArea = () => {
     handleTimestampClick,
   } = useVideoEditor();
   const currentSentenceRef = useRef<HTMLDivElement>(null);
+  const suggestedSentences = videoData?.sections.flatMap((section) =>
+    section.sentences.filter((sentence) => sentence.isHighlight)
+  );
 
   // Auto-scroll to current sentence during playback
   useEffect(() => {
@@ -34,12 +35,9 @@ const EditingArea = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-2">
           Transcript & Highlights
         </h2>
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span>{selectedSentences.size} highlights selected</span>
-          <Badge variant="secondary" className="text-xs">
-            <Sparkles className="w-3 h-3 mr-1" />
-            AI Suggestions Applied
-          </Badge>
+        <div className="flex items-center gap-4 text-xs md:text-sm text-gray-600">
+          <span>{selectedSentences.size} selected</span>
+          <span>{suggestedSentences?.length} AI suggested</span>
         </div>
       </div>
 

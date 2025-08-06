@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const sentenceVariants = cva(
-  "p-3 rounded-lg border transition-all cursor-pointer",
+  "p-4 rounded-lg border transition-all cursor-pointer",
   {
     variants: {
       isCurrent: {

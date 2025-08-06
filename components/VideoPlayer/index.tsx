@@ -13,6 +13,8 @@ const VideoPlayer = () => {
   const [duration, setDuration] = useState(0);
   const {
     videoUrl,
+    videoFile,
+    selectedSentences,
     currentTime,
     isPlaying,
     selectedSegments,
@@ -73,7 +75,15 @@ const VideoPlayer = () => {
   };
 
   return (
-    <div className="relative w-full h-full bg-black group">
+    <div className="relative w-full h-full lg:h-auto bg-black group">
+      <div className="lg:hidden absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <h2 className="px-4 py-2 flex-1 flex items-end gap-4 relative text-white text-xl font-bold">
+          {videoFile?.name}
+          <span className="text-sm text-gray-400">
+            {selectedSentences.size} highlights
+          </span>
+        </h2>
+      </div>
       <video
         ref={videoRef}
         src={videoUrl}
