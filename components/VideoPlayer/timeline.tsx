@@ -24,7 +24,34 @@ const Timeline = ({
     setIndicatorTime(currentTime);
   }, [currentTime]);
 
-  const getNewTime = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isIndicatorMoving) return;
+      const time = getNewTime(e);
+      setIndicatorTime(time);
+    };
+
+    const handleMouseUp = () => {
+      if (!isIndicatorMoving) return;
+      setIsIndicatorMoving(false);
+      onTimeChange(indicatorTime);
+    };
+
+    if (isIndicatorMoving) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      // Prevent text selection while dragging
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "";
+    };
+  }, [isIndicatorMoving, indicatorTime, onTimeChange]);
+
+  const getNewTime = (e: React.MouseEvent | MouseEvent) => {
     if (!timelineRef.current || duration === 0) return 0;
 
     const rect = timelineRef.current.getBoundingClientRect();
@@ -35,37 +62,36 @@ const Timeline = ({
     return time;
   };
 
-  const handleIndicatorStart = () => {
-    setIsIndicatorMoving(true);
-  };
-
-  const handleIndicatorMove = (e: React.MouseEvent) => {
-    if (!isIndicatorMoving) return;
+  const handleTimelineClick = (e: React.MouseEvent) => {
+    if (isIndicatorMoving) return;
     const time = getNewTime(e);
     setIndicatorTime(time);
+    onTimeChange(time);
   };
 
-  const handleIndicatorLeave = () => {
-    setIsIndicatorMoving(false);
-    onTimeChange(indicatorTime);
+  const handleIndicatorStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsIndicatorMoving(true);
+    const time = getNewTime(e);
+    setIndicatorTime(time);
   };
 
   return (
     <div
       ref={timelineRef}
-      className="relative h-2 bg-gray-700 rounded cursor-pointer"
+      className="relative h-2 bg-gray-700 rounded cursor-pointer select-none"
       onMouseDown={handleIndicatorStart}
-      onMouseMove={handleIndicatorMove}
-      onMouseUp={handleIndicatorLeave}
+      onClick={handleTimelineClick}
     >
-      {/* Current time indicator */}
+      {/* track */}
       <div
-        className="absolute top-0 bottom-0 left-0 bg-white"
+        className="absolute top-0 bottom-0 left-0 bg-white pointer-events-none"
         style={{
           right: `${(1 - indicatorTime / duration) * 100}%`,
         }}
       >
-        <div className="absolute z-10 top-1/2 right-0 w-4 h-4 bg-white rounded-full shadow-lg transform -translate-y-1/2 translate-x-1/2" />
+        {/* indicator */}
+        <div className="absolute z-10 top-1/2 right-0 w-4 h-4 bg-white rounded-full shadow-lg transform -translate-y-1/2 translate-x-1/2 pointer-events-auto cursor-grab active:cursor-grabbing" />
       </div>
 
       {/* Selected segments */}
@@ -73,7 +99,7 @@ const Timeline = ({
         return (
           <div
             key={index}
-            className="absolute top-0 h-full bg-green-500 rounded"
+            className="absolute top-0 h-full bg-green-500 rounded pointer-events-none"
             style={{
               left: `${(segment.startTime / duration) * 100}%`,
               width: `${
