@@ -41,7 +41,7 @@ const EditingArea = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-6">
+      <div className="flex-1 space-y-6">
         {videoData.sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="space-y-3 p-4">
             <h3 className="text-lg font-semibold text-gray-900 sticky top-0 bg-white py-2 border-b">

@@ -37,9 +37,7 @@ const VideoHighlightEditor = () => {
         <div className="w-full lg:w-3/5 landscape:w-3/5 bg-gray-900 sticky top-0 z-10 lg:static">
           <PreviewArea />
         </div>
-        <div
-          className="w-full h-full lg:w-2/5 landscape:w-2/5 border-t lg:border-t-0 border-r bg-white"
-        >
+        <div className="w-full h-full lg:w-2/5 landscape:w-2/5 border-t lg:border-t-0 border-r bg-white">
           <EditingArea />
         </div>
       </div>
