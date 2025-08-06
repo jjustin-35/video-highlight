@@ -23,7 +23,8 @@ const Sentence = ({
   onTimestampClick,
 }: SentenceProps) => {
   const isSelected = selectedSentences.has(sentence.id);
-  const isCurrent = currentTime >= sentence.startTime && currentTime <= sentence.endTime;
+  const isCurrent =
+    currentTime >= sentence.startTime && currentTime <= sentence.endTime;
   const sentenceStyles = sentenceVariants({
     isCurrent,
     isSelected,
@@ -64,11 +65,8 @@ const Sentence = ({
             {sentence.isHighlight && (
               <Badge variant="outline" className="text-xs">
                 <Sparkles className="w-3 h-3 mr-1" />
-                AI Suggested
+                <span className="text-xs md:hidden lg:block">AI Suggested</span>
               </Badge>
-            )}
-            {isSelected && (
-              <Badge className="text-xs bg-green-600">Selected</Badge>
             )}
           </div>
         </div>

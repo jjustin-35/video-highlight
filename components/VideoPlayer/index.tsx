@@ -3,34 +3,22 @@
 import { useState } from "react";
 
 import { useRef, useEffect } from "react";
-import { TranscriptSentence } from "@/types/video";
 import { useVideoEditor } from "@/contexts/videoContext";
 import Timeline from "./timeline";
-import TranscriptOverlay from "./transcriptOverlay";
 import ControlBar from "./controlBar";
+import TranscriptOverlay from "../TranscriptOverlay";
 
 const VideoPlayer = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
   const {
     videoUrl,
-    videoData,
     currentTime,
     isPlaying,
     selectedSegments,
     setCurrentTime,
     setIsPlaying,
   } = useVideoEditor();
-
-  const currentSentence = videoData?.sections.reduce<TranscriptSentence | null>(
-    (acc, section) => {
-      const sentence = section.sentences.find(
-        (s) => currentTime >= s.startTime && currentTime <= s.endTime
-      );
-      return sentence ? sentence : acc;
-    },
-    null
-  );
 
   useEffect(() => {
     const video = videoRef.current;
@@ -89,16 +77,14 @@ const VideoPlayer = () => {
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full h-full object-contain"
+        className="w-full h-full aspect-video object-contain"
         playsInline
+        onClick={handlePlayPause}
       />
 
-      {currentSentence && (
-        <TranscriptOverlay
-          text={currentSentence.text}
-          isHighlight={currentSentence.isHighlight}
-        />
-      )}
+      <div className="hidden md:block absolute left-0 right-0 bottom-4 group-hover:bottom-16 p-4 transition-all duration-300">
+        <TranscriptOverlay />
+      </div>
 
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <Timeline

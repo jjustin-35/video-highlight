@@ -35,7 +35,7 @@ const ControlBar = ({
         </Button>
 
         <div
-          className="flex items-center gap-2 text-white group"
+          className="flex items-center gap-2 text-white group/volume"
         >
           <Volume2 className="w-4 h-4" />
           <Slider
@@ -43,7 +43,7 @@ const ControlBar = ({
             onValueChange={handleVolumeChange}
             max={1}
             step={0.1}
-            className="w-0 opacity-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100"
+            className="w-0 opacity-0 transition-all duration-300 group-hover/volume:w-20 group-hover/volume:opacity-100"
           />
         </div>
 
