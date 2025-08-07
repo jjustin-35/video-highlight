@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { useRef, useEffect } from "react";
 import { useVideoEditor } from "@/contexts/videoContext";
 import Timeline from "./timeline";
@@ -10,7 +8,6 @@ import TranscriptOverlay from "../TranscriptOverlay";
 
 const VideoPlayer = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [duration, setDuration] = useState(0);
   const {
     videoUrl,
     videoFile,
@@ -18,7 +15,9 @@ const VideoPlayer = () => {
     currentTime,
     isPlaying,
     selectedSegments,
+    duration,
     setCurrentTime,
+    setDuration,
     setIsPlaying,
   } = useVideoEditor();
 

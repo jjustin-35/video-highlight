@@ -56,7 +56,7 @@ const Timeline = ({
 
     const rect = timelineRef.current.getBoundingClientRect();
     const clickPosition = e.clientX - rect.left;
-    const percentage = clickPosition / rect.width;
+    const percentage = Math.max(0, Math.min(1, clickPosition / rect.width));
     const time = percentage * duration;
 
     return time;

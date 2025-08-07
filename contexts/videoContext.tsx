@@ -19,6 +19,7 @@ interface VideoContextType {
   selectedSentences: Set<string>;
   selectedSegments: SelectedSegment[];
   currentTime: number;
+  duration: number;
   isPlaying: boolean;
 
   // Actions
@@ -27,6 +28,7 @@ interface VideoContextType {
   handleSentenceToggle: (sentenceId: string) => void;
   handleTimestampClick: (timestamp: number) => void;
   setCurrentTime: (time: number) => void;
+  setDuration: (duration: number) => void;
   setIsPlaying: (playing: boolean) => void;
 }
 
@@ -38,12 +40,14 @@ const initialState: VideoContextType = {
   selectedSentences: new Set(),
   selectedSegments: [],
   currentTime: 0,
+  duration: 0,
   isPlaying: false,
   handleVideoUpload: async () => {},
   handleDemoVideo: async () => {},
   handleSentenceToggle: () => {},
   handleTimestampClick: () => {},
   setCurrentTime: () => {},
+  setDuration: () => {},
   setIsPlaying: () => {},
 };
 
@@ -69,6 +73,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     []
   );
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
@@ -173,13 +178,14 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     selectedSegments,
     currentTime,
     isPlaying,
-
+    duration,
     // Actions
     handleVideoUpload,
     handleDemoVideo,
     handleSentenceToggle,
     handleTimestampClick,
     setCurrentTime,
+    setDuration,
     setIsPlaying,
   };
 
