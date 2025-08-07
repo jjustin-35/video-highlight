@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, Video } from "lucide-react";
 import { useVideoEditor } from "@/contexts/videoContext";
@@ -10,15 +9,12 @@ import Button from "@/components/Button";
 const VideoUpload = () => {
   const { handleVideoUpload, handleDemoVideo } = useVideoEditor();
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0];
-      if (file) {
-        handleVideoUpload(file);
-      }
-    },
-    [handleVideoUpload]
-  );
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      handleVideoUpload(file);
+    }
+  };
 
   const onTryDemo = async () => {
     await handleDemoVideo();

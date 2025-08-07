@@ -94,13 +94,11 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
             currentSegment = {
               startTime: sentence.startTime,
               endTime: sentence.endTime,
-              text: sentence.text,
               sentences: [sentence],
             };
           } else {
             // Extend current segment
             currentSegment.endTime = sentence.endTime;
-            currentSegment.text += " " + sentence.text;
             currentSegment.sentences.push(sentence);
           }
         }
@@ -111,20 +109,45 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedSegments(segments);
   }, [selectedSentences, videoData, currentTime]);
 
+  // for uploaded video to slice the mock data
+  useEffect(() => {
+    if (!videoData || !duration) return;
+    if (Math.abs(duration - videoData.duration) < 1) return;
+    if (duration > videoData.duration) {
+      setVideoData({
+        ...videoData,
+        duration,
+      });
+      return;
+    }
+
+    const newSections = videoData.sections.filter((section) => {
+      return section.sentences.every(
+        (sentence) => sentence.endTime <= duration
+      );
+    });
+    const suggestedHighlights = newSections.flatMap((section) =>
+      section.sentences.filter((s) => s.isHighlight).map((s) => s.id)
+    );
+    const newSelectedSentences = new Set(suggestedHighlights);
+
+    const newVideoData = {
+      ...videoData,
+      duration,
+      sections: newSections,
+      suggestedHighlights,
+    };
+    setVideoData(newVideoData);
+    setSelectedSentences(newSelectedSentences);
+  }, [duration, videoData]);
+
   const handleAiData = async () => {
     setIsProcessing(true);
     try {
       const processedData = await mockAIProcess();
       setVideoData(processedData);
 
-      const suggestedIds = new Set<string>();
-      processedData.sections.forEach((section) => {
-        section.sentences.forEach((sentence) => {
-          if (sentence.isHighlight) {
-            suggestedIds.add(sentence.id);
-          }
-        });
-      });
+      const suggestedIds = new Set(processedData.suggestedHighlights);
       setSelectedSentences(suggestedIds);
     } catch (error) {
       console.error("Error processing video:", error);

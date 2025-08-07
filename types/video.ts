@@ -12,7 +12,6 @@ export interface TranscriptSection {
 }
 
 export interface VideoData {
-  fullTranscript: string;
   sections: TranscriptSection[];
   duration: number;
   suggestedHighlights: string[];
@@ -21,6 +20,5 @@ export interface VideoData {
 export interface SelectedSegment {
   startTime: number;
   endTime: number;
-  text: string;
   sentences: TranscriptSentence[];
 }
