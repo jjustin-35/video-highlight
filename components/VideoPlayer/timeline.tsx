@@ -25,7 +25,7 @@ const Timeline = ({
   }, [currentTime]);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
       if (!isIndicatorMoving) return;
       const time = getNewTime(e);
       setIndicatorTime(time);
@@ -40,7 +40,8 @@ const Timeline = ({
     if (isIndicatorMoving) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      // Prevent text selection while dragging
+      document.addEventListener("touchmove", handleMouseMove);
+      document.addEventListener("touchend", handleMouseUp);
       document.body.style.userSelect = "none";
     }
 
@@ -51,11 +52,18 @@ const Timeline = ({
     };
   }, [isIndicatorMoving, indicatorTime, onTimeChange]);
 
-  const getNewTime = (e: React.MouseEvent | MouseEvent) => {
+  const getNewTime = (e: React.MouseEvent | MouseEvent | React.TouchEvent | TouchEvent) => {
     if (!timelineRef.current || duration === 0) return 0;
 
     const rect = timelineRef.current.getBoundingClientRect();
-    const clickPosition = e.clientX - rect.left;
+    const clickPosition = (() => {
+      if ("clientX" in e) {
+        return e.clientX - rect.left;
+      } else if ("touches" in e) {
+        return e.touches[0]?.clientX - rect.left;
+      }
+      return 0;
+    })();
     const percentage = Math.max(0, Math.min(1, clickPosition / rect.width));
     const time = percentage * duration;
 
@@ -69,7 +77,7 @@ const Timeline = ({
     onTimeChange(time);
   };
 
-  const handleIndicatorStart = (e: React.MouseEvent) => {
+  const handleIndicatorStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsIndicatorMoving(true);
     const time = getNewTime(e);
@@ -81,6 +89,7 @@ const Timeline = ({
       ref={timelineRef}
       className="relative h-2 bg-gray-700 rounded cursor-pointer select-none"
       onMouseDown={handleIndicatorStart}
+      onTouchStart={handleIndicatorStart}
       onClick={handleTimelineClick}
     >
       {/* track */}
