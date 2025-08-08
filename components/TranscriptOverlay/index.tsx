@@ -2,20 +2,18 @@
 
 import { combineClass } from "@/helpers/combineClass";
 import { useVideoEditor } from "@/contexts/videoContext";
-import { TranscriptSentence } from "@/types/video";
 
 const TranscriptOverlay = () => {
   const { videoData, currentTime } = useVideoEditor();
-  const currentSentence = videoData?.sections.reduce<TranscriptSentence | null>(
-    (acc, section) => {
-      const sentence = section.sentences.find(
-        (s) => currentTime >= s.startTime && currentTime <= s.endTime
-      );
-      return sentence ? sentence : acc;
-    },
-    null
+  const allSentences = videoData?.sections.flatMap(
+    (section) => section.sentences
+  );
+  const currentSentence = allSentences?.find(
+    (s) => currentTime >= s.startTime && currentTime <= s.endTime
   );
   const isHighlight = currentSentence?.isHighlight || false;
+
+  if (!currentSentence?.text) return null;
 
   return (
     <div className="flex justify-center">
@@ -26,7 +24,7 @@ const TranscriptOverlay = () => {
             isHighlight ? "text-green-500" : "text-white"
           )}
         >
-          {currentSentence?.text || ""}
+          {currentSentence.text}
         </p>
       </div>
     </div>
