@@ -25,29 +25,31 @@ const Timeline = ({
   }, [currentTime]);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+    const handleIndicatorMove = (e: MouseEvent | TouchEvent) => {
       if (!isIndicatorMoving) return;
       const time = getNewTime(e);
       setIndicatorTime(time);
     };
 
-    const handleMouseUp = () => {
+    const handleIndicatorEnd = () => {
       if (!isIndicatorMoving) return;
       setIsIndicatorMoving(false);
       onTimeChange(indicatorTime);
     };
 
     if (isIndicatorMoving) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("touchmove", handleMouseMove);
-      document.addEventListener("touchend", handleMouseUp);
+      document.addEventListener("mousemove", handleIndicatorMove);
+      document.addEventListener("mouseup", handleIndicatorEnd);
+      document.addEventListener("touchmove", handleIndicatorMove);
+      document.addEventListener("touchend", handleIndicatorEnd);
       document.body.style.userSelect = "none";
     }
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleIndicatorMove);
+      document.removeEventListener("mouseup", handleIndicatorEnd);
+      document.removeEventListener("touchmove", handleIndicatorMove);
+      document.removeEventListener("touchend", handleIndicatorEnd);
       document.body.style.userSelect = "";
     };
   }, [isIndicatorMoving, indicatorTime, onTimeChange]);
