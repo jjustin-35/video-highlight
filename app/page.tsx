@@ -33,7 +33,7 @@ const VideoHighlightEditor = () => {
         </div>
       </header>
 
-      <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-64px)] lg:overflow-hidden landscape:flex-row landscape:h-[calc(100vh-64px)] landscape:overflow-hidden">
+      <div className="flex flex-col lg:flex-row-reverse lg:h-[calc(100vh-64px)] lg:overflow-hidden landscape:flex-row-reverse landscape:h-[calc(100vh-64px)] landscape:overflow-hidden">
         <div className="w-full lg:w-3/5 landscape:w-3/5 bg-gray-900 sticky top-0 z-10 lg:static">
           <PreviewArea />
         </div>
