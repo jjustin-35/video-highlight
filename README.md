@@ -25,6 +25,28 @@ A modern web application that enables users to upload videos and create AI-power
 - **Modern UI Components**: Clean, accessible interface built with Radix UI
 - **Type Safety**: Full TypeScript implementation for robust development
 
+## Tech Stack
+
+### Frontend Framework
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library with latest features
+- **TypeScript** - Type-safe development
+
+### Styling & UI
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Radix UI** - Accessible component primitives
+- **Lucide React** - Icon library
+- **Class Variance Authority** - Component variant management
+
+### File Handling
+- **React Dropzone** - File upload with drag & drop support
+
+### Development Tools
+- **ESLint** - Code linting and formatting
+- **PostCSS** - CSS processing
+- **Tailwind Merge** - Conditional class merging
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -64,27 +86,6 @@ yarn start
 ```
 ### Demo
 The application includes a demo video (`/public/demo.mp4`) that you can use to explore the features without uploading your own content.
-
-## Tech Stack
-
-### Frontend Framework
-- **Next.js 15** - React framework with App Router
-- **React 19** - UI library with latest features
-- **TypeScript** - Type-safe development
-
-### Styling & UI
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Icon library
-- **Class Variance Authority** - Component variant management
-
-### File Handling
-- **React Dropzone** - File upload with drag & drop support
-
-### Development Tools
-- **ESLint** - Code linting and formatting
-- **PostCSS** - CSS processing
-- **Tailwind Merge** - Conditional class merging
 
 ## Project Architecture
 
