@@ -21,8 +21,9 @@ const Timeline = ({
   const timelineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (isIndicatorMoving) return;
     setIndicatorTime(currentTime);
-  }, [currentTime]);
+  }, [currentTime, isIndicatorMoving]);
 
   useEffect(() => {
     const handleIndicatorMove = (e: MouseEvent | TouchEvent) => {
