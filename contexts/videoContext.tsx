@@ -8,7 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import type { VideoData, SelectedSegment } from "@/types/video";
-import { mockAIProcess } from "@/lib/mockAi";
+import { processVideoWithAI } from "@/lib/ai";
 
 interface VideoContextType {
   // State
@@ -21,6 +21,7 @@ interface VideoContextType {
   currentTime: number;
   duration: number;
   isPlaying: boolean;
+  error: string | null;
 
   // Actions
   handleVideoUpload: (file: File) => Promise<void>;
@@ -30,6 +31,7 @@ interface VideoContextType {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setIsPlaying: (playing: boolean) => void;
+  clearError: () => void;
 }
 
 const initialState: VideoContextType = {
@@ -42,6 +44,7 @@ const initialState: VideoContextType = {
   currentTime: 0,
   duration: 0,
   isPlaying: false,
+  error: null,
   handleVideoUpload: async () => {},
   handleDemoVideo: async () => {},
   handleSentenceToggle: () => {},
@@ -49,6 +52,7 @@ const initialState: VideoContextType = {
   setCurrentTime: () => {},
   setDuration: () => {},
   setIsPlaying: () => {},
+  clearError: () => {},
 };
 
 const VideoContext = createContext<VideoContextType>(initialState);
@@ -75,6 +79,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!videoData) return;
@@ -141,19 +146,33 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedSentences(newSelectedSentences);
   }, [duration, videoData]);
 
-  const handleAiData = async () => {
+  const handleAiData = async (file: File) => {
     setIsProcessing(true);
+    setError(null);
     try {
-      const processedData = await mockAIProcess();
-      setVideoData(processedData);
+      const processedData = await processVideoWithAI(file);
+      if (!processedData.isSuccess || !processedData.data) {
+        throw new Error(
+          processedData.errorMessage || "Failed to process video"
+        );
+      }
+      const { data } = processedData;
+      setVideoData(data);
 
-      const suggestedIds = new Set(processedData.suggestedHighlights);
+      const suggestedIds = new Set(data.suggestedHighlights);
       setSelectedSentences(suggestedIds);
     } catch (error) {
       console.error("Error processing video:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      setError(`Failed to process video: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   const handleDemoVideo = async () => {
@@ -166,7 +185,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setVideoFile(file);
     const url = "/demo.mp4";
     setVideoUrl(url);
-    await handleAiData();
+    await handleAiData(file);
   };
 
   const handleVideoUpload = async (file: File) => {
@@ -174,7 +193,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
 
-    await handleAiData();
+    await handleAiData(file);
   };
 
   const handleSentenceToggle = (sentenceId: string) => {
@@ -202,6 +221,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     currentTime,
     isPlaying,
     duration,
+    error,
     // Actions
     handleVideoUpload,
     handleDemoVideo,
@@ -210,6 +230,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTime,
     setDuration,
     setIsPlaying,
+    clearError,
   };
 
   return (
