@@ -15,14 +15,14 @@ export const videoAnalysisPrompt = `
             {
               "id": "unique_id",
               "text": "The actual spoken text",
-              "startTime": 0,
-              "endTime": 5,
+              "startTime": 0 (start time in seconds),
+              "endTime": 5 (end time in seconds),
               "isHighlight": false
             }
           ]
         }
       ],
-      "duration": total_video_duration_in_seconds
+      "duration": 60 (total video duration in seconds)
     }
     
     Guidelines for highlights:

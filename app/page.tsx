@@ -7,9 +7,9 @@ import PreviewArea from "@/components/PreviewArea";
 import Loading from "./loading";
 
 const VideoHighlightEditor = () => {
-  const { videoFile, isProcessing } = useVideoEditor();
+  const { videoFile, isProcessing, error } = useVideoEditor();
 
-  if (!videoFile) {
+  if (!videoFile || error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <VideoUpload />

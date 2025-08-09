@@ -1,31 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, Video } from "lucide-react";
+import { Upload, Video, AlertCircle, Info } from "lucide-react";
 import { useVideoEditor } from "@/contexts/videoContext";
 import { combineClass } from "@/helpers/combineClass";
+import validateFile from "@/helpers/validateFile";
+import { maxFileSizeBytes, allowedExtensions, maxFileSizeMB } from "@/constants/video";
 import Button from "@/components/Button";
 
 const VideoUpload = () => {
-  const { handleVideoUpload, handleDemoVideo } = useVideoEditor();
+  const { handleVideoUpload, handleDemoVideo, error: processError, clearError} = useVideoEditor();
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const error = processError || uploadError;
 
-  const onDrop = (acceptedFiles: File[]) => {
+  const onDrop = (acceptedFiles: File[], rejectedFiles: any[]) => {
+    setUploadError(null);
+    clearError();
+    
+    if (rejectedFiles.length > 0) {
+      const rejection = rejectedFiles[0];
+      if (rejection.errors.some((e: any) => e.code === 'file-too-large')) {
+        setUploadError(`file too large, max size is ${maxFileSizeMB}MB`);
+      } else if (rejection.errors.some((e: any) => e.code === 'file-invalid-type')) {
+        setUploadError('unsupported file format, please select MP4, MOV, AVI or WebM files');
+      } else {
+        setUploadError('upload failed, please try again');
+      }
+      return;
+    }
+
     const file = acceptedFiles[0];
     if (file) {
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        setUploadError(validation.error || 'upload failed, please try again');
+        return;
+      }
       handleVideoUpload(file);
     }
   };
 
   const onTryDemo = async () => {
+    setUploadError(null);
+    clearError();
     await handleDemoVideo();
   };
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+  const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "video/*": [".mp4", ".mov", ".avi", ".webm"],
+      "video/*": allowedExtensions,
     },
     maxFiles: 1,
+    maxSize: maxFileSizeBytes,
     noClick: true,
   });
 
@@ -41,11 +69,40 @@ const VideoUpload = () => {
         </p>
       </div>
 
+      {/* file limit message */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start">
+          <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+          <div className="text-sm text-blue-800">
+            <p className="font-medium mb-1">Upload limit</p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Max file size: {maxFileSizeMB}MB</li>
+              <li>Supported formats: {allowedExtensions.join(', ').toUpperCase()}</li>
+              <li>Suggested video length: less than 30 minutes</li>
+              <li>Processing time: 2-5 minutes (depends on file size)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* error message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div className="text-sm text-red-800">
+              <p className="font-medium">Upload error</p>
+              <p>{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div
         {...getRootProps()}
         className={combineClass(
-          "border-2 border-dashed rounded-lg p-12 text-center transition-colors",
-          isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-400"
+          "border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer",
+          isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-400 hover:border-gray-500"
         )}
       >
         <input {...getInputProps()} />
@@ -59,9 +116,9 @@ const VideoUpload = () => {
                 Drag and drop your video here, or click to select
               </p>
               <p className="text-sm text-gray-500 mb-4">
-                Supports MP4, MOV, AVI, WebM files
+                Supports {allowedExtensions.join(', ').toUpperCase()} files up to {maxFileSizeMB}MB
               </p>
-              <Button variant="outline" onClick={() => open()}>
+              <Button variant="outline" onClick={open}>
                 Choose Video File
               </Button>
             </div>

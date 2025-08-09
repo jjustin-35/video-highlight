@@ -114,7 +114,6 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedSegments(segments);
   }, [selectedSentences, videoData, currentTime]);
 
-  // for uploaded video to slice the mock data
   useEffect(() => {
     if (!videoData || !duration) return;
     if (Math.abs(duration - videoData.duration) < 1) return;
@@ -146,7 +145,7 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedSentences(newSelectedSentences);
   }, [duration, videoData]);
 
-  const handleAiData = async (file: File) => {
+  const handleAiData = async (file: File | string) => {
     setIsProcessing(true);
     setError(null);
     try {
@@ -183,9 +182,9 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
       lastModified: Date.now(),
     } as File;
     setVideoFile(file);
-    const url = "/demo.mp4";
+    const url = "./public/demo.mp4";
     setVideoUrl(url);
-    await handleAiData(file);
+    await handleAiData(url);
   };
 
   const handleVideoUpload = async (file: File) => {
