@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import VideoEditorProvider from "@/contexts/videoContext";
+import ToastProvider from "@/contexts/toastContext";
+import Toast from "@/components/Toast";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <VideoEditorProvider>{children}</VideoEditorProvider>
+        <ToastProvider>
+          <VideoEditorProvider>{children}</VideoEditorProvider>
+          <Toast />
+        </ToastProvider>
       </body>
     </html>
   );

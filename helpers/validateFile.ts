@@ -5,7 +5,11 @@ import {
 } from "@/constants/video";
 
 export const handleFileName = (fileName: string) => {
-  const newFileName = fileName.trim().replace(" ", "-").split(".")[0];
+  const newFileName = fileName
+    .split(".")[0]
+    .trim()
+    .replace(" ", "-")
+    .toLowerCase();
   return newFileName;
 };
 

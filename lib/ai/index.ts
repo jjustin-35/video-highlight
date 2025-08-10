@@ -67,7 +67,6 @@ export async function processVideoWithAI(
       };
     } else {
       fileName = handleFileName(file.split("/").pop() || "");
-      console.log(fileName);
       uploadOptions = {
         file: file,
         config: {
@@ -77,31 +76,34 @@ export async function processVideoWithAI(
       };
     }
 
-    const fetchedFile = await genAI.files.get({
-      name: fileName,
-    });
+    const fileList = await genAI.files.list();
+    let isFileExist = false;
+    for await (const file of fileList) {
+      if (file.name?.includes(fileName)) {
+        isFileExist = true;
+        break;
+      }
+    }
 
-    if (!fetchedFile) {
-      const uploadedPromise = retry(() => genAI.files.upload(uploadOptions));
+    if (!isFileExist) {
+      const uploadPromise = retry(() => genAI.files.upload(uploadOptions));
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(
           () => reject(new Error("upload timeout, please try a smaller file")),
           timeoutMs
         )
       );
-      const uploadedFile = await Promise.race([
-        uploadedPromise,
-        timeoutPromise,
-      ]);
-
-      if (!uploadedFile) {
-        throw new Error("Failed to upload file.");
-      }
+      await Promise.race([uploadPromise, timeoutPromise]);
     }
+
+    const fetchedFile = await genAI.files.get({
+      name: fileName,
+    });
 
     const aiRequest: GenerateContentParameters = {
       model: "gemini-2.5-flash",
       contents: createUserContent([
+        `Video Name: ${fileName}`,
         createPartFromUri(fetchedFile.uri || "", fetchedFile.mimeType || ""),
         videoAnalysisPrompt,
       ]),
@@ -112,29 +114,38 @@ export async function processVideoWithAI(
     const text = response.text || "";
 
     // Parse the JSON response
-    let parsedData;
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    let parsedData: VideoData["sections"];
+    const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
     if (!jsonMatch) {
       throw new Error("No JSON found in response");
     }
-    console.log(text);
-    parsedData = JSON.parse(jsonMatch[0]);
+    const content = jsonMatch[1].trim();
+    parsedData = JSON.parse(content);
 
-    if (!parsedData.sections || !Array.isArray(parsedData.sections)) {
+    if (!parsedData || !Array.isArray(parsedData)) {
       throw new Error("Invalid response structure: missing sections array");
     }
 
     // Generate suggested highlights array
-    const suggestedHighlights = parsedData.sections.flatMap(
+    const suggestedHighlights = parsedData.flatMap(
       (section: TranscriptSection) =>
         section.sentences.filter((s) => s.isHighlight).map((s) => s.id)
     );
 
+    const duration = parsedData.reduce((acc, section) => {
+      return (
+        acc +
+        section.sentences.reduce((acc, sentence) => {
+          return acc + (sentence.endTime - sentence.startTime);
+        }, 0)
+      );
+    }, 0);
+
     return {
       isSuccess: true,
       data: {
-        sections: parsedData.sections,
-        duration: parsedData.duration || 0,
+        sections: parsedData,
+        duration: duration,
         suggestedHighlights,
       },
     };
@@ -146,7 +157,7 @@ export async function processVideoWithAI(
 
     let errorMessage = "Unknown error";
     if (error instanceof Error) {
-      if (error.message.includes("timeout") || error.message.includes("超時")) {
+      if (error.message.includes("timeout")) {
         errorMessage = "Processing timeout, please try a smaller file or later";
       } else if (
         error.message.includes("quota") ||

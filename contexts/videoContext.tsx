@@ -8,6 +8,8 @@ import React, {
   useEffect,
 } from "react";
 import type { VideoData, SelectedSegment } from "@/types/video";
+import { useToast } from "@/contexts/toastContext";
+import { ToastType } from "@/constants/toast";
 import { processVideoWithAI } from "@/lib/ai";
 
 interface VideoContextType {
@@ -19,9 +21,7 @@ interface VideoContextType {
   selectedSentences: Set<string>;
   selectedSegments: SelectedSegment[];
   currentTime: number;
-  duration: number;
   isPlaying: boolean;
-  error: string | null;
 
   // Actions
   handleVideoUpload: (file: File) => Promise<void>;
@@ -29,9 +29,7 @@ interface VideoContextType {
   handleSentenceToggle: (sentenceId: string) => void;
   handleTimestampClick: (timestamp: number) => void;
   setCurrentTime: (time: number) => void;
-  setDuration: (duration: number) => void;
   setIsPlaying: (playing: boolean) => void;
-  clearError: () => void;
 }
 
 const initialState: VideoContextType = {
@@ -42,17 +40,13 @@ const initialState: VideoContextType = {
   selectedSentences: new Set(),
   selectedSegments: [],
   currentTime: 0,
-  duration: 0,
   isPlaying: false,
-  error: null,
   handleVideoUpload: async () => {},
   handleDemoVideo: async () => {},
   handleSentenceToggle: () => {},
   handleTimestampClick: () => {},
   setCurrentTime: () => {},
-  setDuration: () => {},
   setIsPlaying: () => {},
-  clearError: () => {},
 };
 
 const VideoContext = createContext<VideoContextType>(initialState);
@@ -77,9 +71,8 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     []
   );
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { openToast } = useToast();
 
   useEffect(() => {
     if (!videoData) return;
@@ -114,40 +107,8 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedSegments(segments);
   }, [selectedSentences, videoData, currentTime]);
 
-  useEffect(() => {
-    if (!videoData || !duration) return;
-    if (Math.abs(duration - videoData.duration) < 1) return;
-    if (duration > videoData.duration) {
-      setVideoData({
-        ...videoData,
-        duration,
-      });
-      return;
-    }
-
-    const newSections = videoData.sections.filter((section) => {
-      return section.sentences.every(
-        (sentence) => sentence.endTime <= duration
-      );
-    });
-    const suggestedHighlights = newSections.flatMap((section) =>
-      section.sentences.filter((s) => s.isHighlight).map((s) => s.id)
-    );
-    const newSelectedSentences = new Set(suggestedHighlights);
-
-    const newVideoData = {
-      ...videoData,
-      duration,
-      sections: newSections,
-      suggestedHighlights,
-    };
-    setVideoData(newVideoData);
-    setSelectedSentences(newSelectedSentences);
-  }, [duration, videoData]);
-
   const handleAiData = async (file: File | string) => {
     setIsProcessing(true);
-    setError(null);
     try {
       const processedData = await processVideoWithAI(file);
       if (!processedData.isSuccess || !processedData.data) {
@@ -162,16 +123,17 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
       setSelectedSentences(suggestedIds);
     } catch (error) {
       console.error("Error processing video:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      setError(`Failed to process video: ${errorMessage}`);
+      resetVideo();
+      openToast(ToastType.processingFailed);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const clearError = () => {
-    setError(null);
+  const resetVideo = () => {
+    setVideoData(null);
+    setVideoFile(null);
+    setVideoUrl("");
   };
 
   const handleDemoVideo = async () => {
@@ -182,9 +144,11 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
       lastModified: Date.now(),
     } as File;
     setVideoFile(file);
-    const url = "./public/demo.mp4";
-    setVideoUrl(url);
-    await handleAiData(url);
+
+    const videoUrl = "/demo.mp4";
+    const fileUrl = `./public/${videoUrl}`;
+    setVideoUrl(videoUrl);
+    await handleAiData(fileUrl);
   };
 
   const handleVideoUpload = async (file: File) => {
@@ -219,17 +183,13 @@ const VideoProvider = ({ children }: { children: ReactNode }) => {
     selectedSegments,
     currentTime,
     isPlaying,
-    duration,
-    error,
     // Actions
     handleVideoUpload,
     handleDemoVideo,
     handleSentenceToggle,
     handleTimestampClick,
     setCurrentTime,
-    setDuration,
     setIsPlaying,
-    clearError,
   };
 
   return (
