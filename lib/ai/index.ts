@@ -16,6 +16,7 @@ import { videoAnalysisPrompt } from "./data";
 
 // Initialize Gemini AI with retry logic
 let genAI: GoogleGenAI | null = null;
+const model = process.env.NODE_ENV === "production" ? "gemini-2.5-pro" : "gemini-2.5-flash";
 
 const initializeGeminiAI = async (): Promise<GoogleGenAI> => {
   if (genAI) return genAI;
@@ -101,7 +102,7 @@ export async function processVideoWithAI(
     });
 
     const aiRequest: GenerateContentParameters = {
-      model: "gemini-2.5-flash",
+      model,
       contents: createUserContent([
         `Video Name: ${fileName}`,
         createPartFromUri(fetchedFile.uri || "", fetchedFile.mimeType || ""),
