@@ -138,3 +138,8 @@ video-highlight/
 4. **User Interaction**: User can select/deselect transcript sentences
 5. **Real-time Preview**: Selected segments are visualized on timeline
 6. **Playback Sync**: Video playback synchronizes with transcript
+
+## Next Feature
+This Video Highlight will actually add AI transcript feature, the unstable version is available:
+DEMO: https://video-highlight-git-feature-add-ai-jjustin35s-projects.vercel.app
+Github branch: https://github.com/jjustin-35/video-highlight/tree/feature-add-ai
